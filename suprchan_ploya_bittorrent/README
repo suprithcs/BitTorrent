@@ -1,0 +1,148 @@
+Project 2: BitTorrent Client Implementation.
+
+IMPLEMENTED BY : Puneet Loya(username: ploya) and Suprith Chandrashekharachar(username: suprchan)
+
+The project is implemented in C++11.
+
+The code is modularized into four modules.
+
+BitTorrent.cpp  - The main file which file which initiates the program and sets up the variables based on the given command line arguments.
+
+bitTorrentHandshake.cpp - The file which performs the setting up of bittorrent handshake text, peerid and torrent file's info hash.
+fileOperationsManager.cpp - File Manager that provides APIs to perform read or write file operations.
+metainfoParser.cpp - File which handles the parsing of a given torrent file for various values like piece length, file name etc.
+peer.cpp - File which takes care of all the network programming related aspects of bittorrent program. 
+optionsManager.cpp : options Manager reads all the command line arguments and fills an option dictionary which stores all the options and their values as key-value pairs.
+netcatLogger.cpp: netcatLogger performs the job of printing log statemtents when in verbose mode.
+
+Required Files:
+
+BitTorrent.cpp BitTorrent.h
+BitTorrent.cpp  
+fileOperationsManager.cpp fileOperationsManager.h
+metainfoParser.cpp metainfoParser.h
+BitTorrentLogger.cpp BitTorrentLogger.h
+optionsManager.cpp optionsManager.
+peer.cpp peer.h
+makefile
+
+Tasks Accomplished:
+
+- Parse the given torrent file to determine the filename, hashes and pieces and length information.
+- Connect to remote seeder(s)
+- Send handshake text and verify the seeder's handshake text.
+- Seeder(s) send bitfield information to the leecher(s).
+- Leecher(s) sends interested message after checking the bitfield information for a file.
+- Leecher(s) sends request message to the seeder's for every piece of the file.
+- Seeder(s) feed the data based on the requested piece in terms of defined blocks.
+- Leecher(s) verify piece integrity using SHA1 and compares it to the piece hash listed in torrent file.
+- Leecher(s) writes the piece data to the output file.  
+- n leechers can talk to n seeders
+
+System Requirements:
+
+C++ Compiler : g++/4.7.2 OR g++/4.8
+
+Operating System : Ubuntu14.04/Redhat
+
+Compiling:
+
+If executing on a silo.cs.indiana.edu machine, please make sure you execute the below command at the shell prompt:
+
+	module load gcc/4.7.2
+
+A makefile is provided to compile the program. 
+
+Just cd to the directory containing all files related to the project. Please refer the above section to find which all files are required.
+
+Execute by typing in "make" at the shell prompt.
+
+Refer the makefile for more details.
+
+Usage:
+
+bt-client [OPTIONS] file.torrent 
+ 	-h 				Print this help screen
+ 	-b ip 			Bind to this ip for incoming connections, ports
+					are selected automatically
+	-s save_file 	Save the torrent in directory save_dir (dflt: .) 
+ 	-l log_file 	Save logs to log_file (dflt: bt-client.log) 
+ 	-p ip:port 		Instead of contacting the tracker for a peer list, 
+					use this peer instead, ip:port (ip or hostname) 
+					(include multiple -p for more than 1 peer)
+ 	-I id 			Set the node identifier to id, a hex string 
+					(dflt: computed based on ip and port) 
+ 	-l 				Listen on port instead of connecting and write output to file 
+					and dest_ip refers to which ip to bind to (dflt: localhost) 
+ 	-v 				verbose, print additional verbose info
+
+
+Examples to run the program: 
+
+To start the seeder: ./bt-client -b localhost moby_dick.txt.torrent
+
+Output:
+[suprchan@silo without_valgrind]$ ./bt-client -b localhost moby_dick.txt.torrent 
+STARTING THE SEEDER USING LOOPBACK ADDRESS
+PORT NO: 15786
+CHECKING PORT STATUS
+FREE PORT FOUND15786
+serverOpsStatus: 0
+SERVER ON PORT:15786
+SERVER READY TO LISTEN :  inside
+My selfIP: 127.0.0.1
+SERVER IS READY TO ACCEPT CONNECTIONS
+info : d6:lengthi31690e4:name13:moby_dick.txt12:piece lengthi262144e6:pieces20WĨg��=���M���~�He
+ PEER ID HASH :���#��|�C����ݾN݄�
+Hash1 :�Ի��!l�U���@�
+                     �/
+Hash2 :�Ի��!l�U���@�
+                     �/
+INFO HASHES MATCHED
+HANDSHAKE DONE
+Client's connection request has been accepted and new socket has been assigned
+newClientSocket:4
+offset:28info : d6:lengthi31690e4:name13:moby_dick.txt12:piece lengthi262144e6:pieces20WĨg��=���M���~�He
+ PEER ID HASH :�;zФ���Bwa�9!��˪y
+BitTorrent Protocol00000000�Ի��!l�U���@�
+                                          �/Ε;zФ���Bwa�9!��˪y
+offset:68 exit handshake : 
+ NO Of PIECES : 1
+ THE CLIENT IS INTERESTEDPEER CONFIRMS THAT THE PIECE NUMBER HAS BEEN COMPLETELY DOWNLOADED
+type:HAVE|piece:0$$FILE TRANSFER COMPLETED$$
+CLOSING CLIENT CONNECTION
+
+
+To start the leecher: ./bt-client -p localhost:15786 moby_dick.txt.torrent
+
+Output:
+[suprchan@silo without_valgrind]$ ./bt-client -p localhost:15786 moby_dick.txt.torrent 
+pssing ip:localhost
+inside
+My selfIP: 127.0.0.1
+offset:28info : d6:lengthi31690e4:name13:moby_dick.txt12:piece lengthi262144e6:pieces20WĨg��=���M���~�He
+ PEER ID HASH :���#��|�C����ݾN݄�
+BitTorrent Protocol00000000�Ի��!l�U���@�
+                                          �/έ��#��|�C����ݾN݄�
+offset:68 exit handshake : 
+info : d6:lengthi31690e4:name13:moby_dick.txt12:piece lengthi262144e6:pieces20WĨg��=���M���~�He
+ PEER ID HASH :�;zФ���Bwa�9!��˪y
+Hash1 :�Ի��!l�U���@�
+                     �/
+Hash2 :�Ի��!l�U���@�
+                     �/
+INFO HASHES MATCHED
+HANDSHAKE DONE
+WAITING FOR BITFIELDS FROM THE SEEDERS POOL
+PROCESSING RECIEVED BITFIELDS
+SENT INTERESTED MESSAGE TO SEEDERS
+REQUESTING PIECE NO: 0, FROM THE SEEDER: 0
+PIECE INTEGRITY VERIFIED AND MATCHED
+TRANSFER PROGRESS : 100%
+
+
+
+Limitations:
+
+File reading and writing is limited to txt files.
+Leecher is not allowed to bind to specific ports i.e., -b option is mentioned then program is started as a seeder.
